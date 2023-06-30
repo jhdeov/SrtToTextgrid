@@ -1,9 +1,11 @@
+
 # Given an SRT, find any unmarked silent intervals and add them to the SRT
 # It also does some other preprocessing steps:
 #     * cleaning up quotation symbols because those cause trouble for Praat
 #     * remove consecutive blank lines
 #     * make the interval numbers incremently increase from 1
 #     * find timing errors
+#     * remove SRT intervals that are empty
 # Made by Hossep Dolatian (github.com/jhdeov/)
 
 import codecs
@@ -70,8 +72,9 @@ srtintervals = []
 # First we read the file and turn it into a list of SRTs
 with codecs.open(inFile, 'r', 'utf-8') as iFile:
     lines = iFile.read().splitlines()
+    lines= lines[:100]
     # the input file must end in an empty new line. we add it in case it's absent
-    if lines[-1] is not "":
+    if lines[-1] != "":
         lines.append("")
 
     # Will remove any consecutive blank lines, if present
@@ -84,32 +87,52 @@ with codecs.open(inFile, 'r', 'utf-8') as iFile:
     linesTemp.append(lines[-1])
     lines = linesTemp
 
+
+    print("\nFollowing is current SRT:")
+    for line in lines:
+        print("\t"+line)
+    print("\nEnd of current SRT")
+
     lines[0] = lines[0].replace('\ufeff', "")
     lineCounter = 0
     while lineCounter < len(lines):
         print(f"Currently working on line number {lineCounter} with content {lines[lineCounter]}")
         tempIndex = lines[lineCounter]
+        print("\ttempIndex:",tempIndex)
         lineCounter+=1
         tempTime = lines[lineCounter]
+        print("\ttempTime:",tempTime)
         lineCounter += 1
         tempContent = lines[lineCounter]
+        print("\ttempContent:",tempContent)
         lineCounter += 1
-        print("\tCurrently on line ",lines[lineCounter])
-        seeNewLine= len(lines[lineCounter])<1
-        print("\tLength of this line: ", len(lines[lineCounter]))
-        print("\tIs the line empty?: ",seeNewLine)
-        while not seeNewLine:
-            tempContent = tempContent + "\n" + lines[lineCounter]
-            print("\tContent of the current line:", tempContent)
-            lineCounter += 1
-            print("\tLineCounter:",lineCounter)
-            seeNewLine= len(lines[lineCounter])<1
-        lineCounter += 1
-
-        currentInterval = srtInterval(tempIndex,tempTime,tempContent)
-        print("Created the following interval",currentInterval)
-        srtintervals.append(currentInterval)
-
+        
+        print("if the content is empty, that means the SRT has silence so we skip this")
+        if tempContent ==  "":
+        	print("tempcontent is empty so we don't insert this interval")
+        else:
+        	print("\ttempcontent is not empty so we see if we want to incorporate the next line")
+        	print(f"\tCurrently on line number {lineCounter} with content {lines[lineCounter]}")
+        	seeNewLine= len(lines[lineCounter])<1
+        	print("\tLength of this line: ", len(lines[lineCounter]))
+        	print("\tIs the line empty?: ",seeNewLine)
+        	while not seeNewLine:
+        		tempContent = tempContent + "\n" + lines[lineCounter]
+        		print("\tContent of the current line:", tempContent)
+        		lineCounter += 1
+        		print("\tLineCounter:",lineCounter)
+        		seeNewLine= len(lines[lineCounter])<1
+        	lineCounter += 1 
+        	currentInterval = srtInterval(tempIndex,tempTime,tempContent)
+        	print("Created the following interval",currentInterval)
+        	srtintervals.append(currentInterval)
+        
+        print("")
+        
+        print("Current set of SRT intervals:")
+        for srtinterval in srtintervals:
+        	print(srtinterval)
+        print("")
 
 print("Done with creating the list")
 print("The list currently has the following intervals:")
@@ -171,7 +194,7 @@ print("")
 # check if need to add an initial silence
 print("Check if need to add initial silence")
 needInitialSilence= False
-if srtintervals[0].startTime is not "00:00:00,000":
+if srtintervals[0].startTime !=  "00:00:00,000" and srtintervals[0].startTime !=  "00:00:00,00" :
     print("There is a missing initial silence:",srtintervals[0].startTime)
     newInterval = createInitialSilence(srtintervals[0].startTime)
     print("here's new interval")

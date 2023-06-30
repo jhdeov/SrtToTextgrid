@@ -5,17 +5,19 @@ This was originally written in Python 2.7.3, but it also works in Python 3.
 
 Example file is a .srt file based on a Youtube transcription of Katie Bell's keynote at a 2015 meeting of the New Zealand Python User Group. Url: https://www.youtube.com/watch?v=dj9RR4BSqvM It's almost an hour, so the audio is really too big to upload. 
 
+Another example is `Patil_transcription_subtitle.srt` which is in Armenian orthography and has blank intervals.
+
 # Usage
 
 Before you run the main SRT-to-TextGrid converter, you may need to clean up the SRT file. Sometimes the SRT may not have dedicated intervals for silences. Praat needs those to be explicit.  The example SRT file `input-SRT-file.srt`  has this problem. To create those silent intervals, run the following command:
 
-`python3 SilentIntervalSRT.py $input-SRT-file.srt $output-SRT-file.srt`
+`python3 SilentIntervalSRT.py Patil_transcription_subtitle.srt output-SRT-file.srt`
 
 Replace the variables $input-SRT-file.srt` and `$output-SRT-file.srt` with your files. 
 
 You can then run the main script that will convert the SRT into a TextGrid. Try experimenting with either the original SRT or the cleaned up SRT:
 
-`python3 SrtToTextgrid.py $output-SRT-file.srt $output-TextGrid-file.TextGrid`
+`python3 SrtToTextgrid.py  output-SRT-file.srt  output-TextGrid-file.TextGrid`
 
 `python3 SrtToTextgrid.py $input-SRT-file.srt $output-TextGrid-file.TextGrid`
 
